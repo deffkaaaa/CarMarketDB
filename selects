@@ -1,0 +1,221 @@
+-- SELECTS
+-- прості запити на дані з таблиць
+SELECT * FROM users;
+SELECT * FROM cars;
+
+SELECT * FROM dealerships;
+SELECT * FROM locations;
+
+SELECT * FROM car_listings;
+
+SELECT * FROM car_features;
+SELECT * FROM car_feature_details;
+
+SELECT * FROM reviews;
+
+SELECT * FROM auctions;
+SELECT * FROM auction_bids;
+
+SELECT * FROM service_centers;
+SELECT * FROM maintenance_records;
+SELECT * FROM insurance_policies;
+
+SELECT * FROM transactions;
+
+-- основні запити
+-- 1
+SELECT cars.brand, cars.model, cars.year, car_listings.car_price, users.first_name, users.last_name
+FROM car_listings
+         JOIN cars ON car_listings.car_id = cars.car_id
+         JOIN users ON car_listings.user_id = users.user_id;
+
+-- 2
+SELECT cars.brand, cars.model, reviews.rating, reviews.comment, users.first_name, users.last_name
+FROM reviews
+         JOIN car_listings ON reviews.listing_id = car_listings.listing_id
+         JOIN cars ON car_listings.listing_id = cars.car_id
+         JOIN users ON reviews.user_id = users.user_id
+WHERE car_listings.car_id = 17;
+
+-- 3
+SELECT cars.brand, cars.model, car_features.name AS feature, car_feature_details.description
+FROM car_feature_details
+         JOIN cars ON car_feature_details.car_id = cars.car_id
+         JOIN car_features ON car_feature_details.feature_id = car_features.feature_id;
+
+-- 4
+SELECT cars.brand, cars.model, transactions.final_price, users.first_name, users.last_name
+FROM transactions
+         JOIN car_listings ON transactions.listing_id = car_listings.listing_id
+         JOIN cars ON car_listings.car_id = cars.car_id
+         JOIN users ON transactions.buyer_id = users.user_id
+WHERE transactions.date >= NOW() - INTERVAL 1 MONTH;
+
+-- 5
+SELECT auctions.auction_id, cars.brand, cars.model, MAX(auction_bids.bid_amount) AS current_bid
+FROM auctions
+         JOIN cars ON auctions.car_id = cars.car_id
+         LEFT JOIN auction_bids ON auctions.auction_id = auction_bids.auction_id
+WHERE auctions.end_date > NOW()
+GROUP BY auctions.auction_id, cars.brand, cars.model;
+
+-- 6 (10)
+SELECT users.first_name, users.last_name, COUNT(transactions.transaction_id) AS total_sales
+FROM transactions
+         JOIN car_listings ON transactions.listing_id = car_listings.listing_id
+         JOIN users ON car_listings.user_id = users.user_id
+WHERE transactions.status = 'Виконана'
+GROUP BY users.user_id;
+
+-- 6
+SELECT cars.brand, cars.model, maintenance_records.description, maintenance_records.date
+FROM maintenance_records
+         JOIN cars ON maintenance_records.car_id = cars.car_id
+         JOIN service_centers ON maintenance_records.service_center_id = service_centers.service_center_id
+WHERE service_centers.name = 'Автосервіс Київ';
+
+-- 7
+SELECT cars.brand, cars.model, COUNT(car_feature_details.feature_id) AS feature_count
+FROM cars
+         JOIN car_feature_details ON cars.car_id = car_feature_details.car_id
+GROUP BY cars.car_id
+HAVING feature_count >= 2;
+
+-- 8
+SELECT cars.brand, cars.model
+FROM cars
+    LEFT JOIN insurance_policies ON cars.car_id = insurance_policies.car_id
+    JOIN maintenance_records ON cars.car_id = maintenance_records.car_id
+WHERE insurance_policies.policy_id IS NULL;
+
+-- 10 (6)
+SELECT
+    users.first_name,
+    users.last_name,
+    COUNT(car_listings.listing_id) AS active_listings
+FROM
+    car_listings
+        JOIN
+    users ON car_listings.user_id = users.user_id
+WHERE
+    car_listings.status = 'Активне'
+GROUP BY
+    users.user_id
+HAVING
+    COUNT(car_listings.listing_id) > 1;
+
+-- 11
+SELECT users.first_name, users.last_name, SUM(transactions.final_price) AS total_income
+FROM transactions
+        JOIN car_listings ON transactions.listing_id = car_listings.listing_id
+        JOIN users ON car_listings.user_id = users.user_id
+WHERE transactions.status = 'Виконана'
+GROUP BY users.user_id
+ORDER BY total_income DESC;
+
+-- 12
+SELECT cars.brand, cars.model, AVG(reviews.rating) AS average_rating
+FROM reviews
+        JOIN car_listings ON reviews.listing_id = car_listings.listing_id
+        JOIN cars ON car_listings.car_id = cars.car_id
+GROUP BY cars.car_id
+HAVING AVG(reviews.rating) >= 2
+ORDER BY average_rating DESC;
+
+-- 13
+SELECT DISTINCT c.brand, c.model
+FROM cars c
+WHERE c.car_id IN (
+    SELECT mr.car_id
+    FROM maintenance_records mr
+    WHERE mr.service_center_id IN (
+        SELECT sc.service_center_id
+        FROM service_centers sc
+        WHERE sc.location_id IN (
+            SELECT d.location_id
+            FROM dealerships d
+        )
+    )
+);
+
+-- 14
+SELECT first_name, last_name
+FROM users
+WHERE user_id IN (
+    SELECT buyer_id
+    FROM transactions
+    WHERE listing_id IN (
+        SELECT listing_id
+        FROM car_listings
+        WHERE car_id IN (
+            SELECT car_id
+            FROM cars
+            WHERE car_condition = 'Вживаний'
+        )
+    )
+);
+
+-- 15
+SELECT brand, model
+FROM cars
+WHERE car_id IN (
+    SELECT car_id
+    FROM car_feature_details
+    GROUP BY car_id
+    HAVING COUNT(feature_id) > 1
+);
+
+-- 16
+SELECT car_id, status, car_price
+FROM car_listings
+WHERE status = 'Активне'
+  AND car_id IN (
+    SELECT car_id
+    FROM transactions
+    GROUP BY car_id
+    HAVING AVG(final_price) > 10000
+);
+
+-- 17
+SELECT cars.brand, cars.model, COUNT(auction_bids.bid_id) AS total_bids
+FROM auction_bids
+        JOIN auctions ON auction_bids.auction_id = auctions.auction_id
+        JOIN cars ON auctions.car_id = cars.car_id
+WHERE auctions.start_date BETWEEN NOW() - INTERVAL 1 MONTH AND NOW()
+GROUP BY cars.car_id
+HAVING COUNT(auction_bids.bid_id) > 1;
+
+-- 18
+SELECT cars.brand, cars.model, AVG(maintenance_records.cost) AS average_repair_cost, car_listings.car_price
+FROM maintenance_records
+        JOIN cars ON maintenance_records.car_id = cars.car_id
+        JOIN car_listings ON cars.car_id = car_listings.car_id
+GROUP BY cars.car_id
+HAVING AVG(maintenance_records.cost) > 500
+   AND car_listings.car_price < (SELECT AVG(car_price) FROM car_listings);
+
+-- 19
+SELECT cars.brand, cars.model, COUNT(maintenance_records.record_id) AS repair_count, car_listings.car_price
+FROM maintenance_records
+        JOIN cars ON maintenance_records.car_id = cars.car_id
+        JOIN car_listings ON cars.car_id = car_listings.car_id
+GROUP BY cars.car_id
+HAVING COUNT(maintenance_records.record_id) > 1 AND car_listings.car_price < (SELECT AVG(car_price) FROM car_listings);
+
+-- 20
+SELECT users.first_name, users.last_name, cars.brand, cars.model, locations.region, MAX(car_listings.car_price) AS max_price
+FROM car_listings
+        JOIN cars ON car_listings.car_id = cars.car_id
+        JOIN users ON car_listings.user_id = users.user_id
+        JOIN locations ON car_listings.location_id = locations.location_id
+GROUP BY locations.region, users.user_id;
+
+-- 21
+SELECT cars.brand, cars.model, (car_listings.car_price - transactions.final_price) AS price_difference
+FROM transactions
+        JOIN car_listings ON transactions.listing_id = car_listings.listing_id
+        JOIN cars ON car_listings.car_id = cars.car_id
+WHERE transactions.status = 'Виконана'
+ORDER BY price_difference DESC
+LIMIT 10;
+
