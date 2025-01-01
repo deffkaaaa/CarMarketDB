@@ -1,0 +1,12 @@
+-- INDEXES
+CREATE INDEX idx_users_email ON users (email);
+
+CREATE INDEX idx_cars_brand_model_year ON cars (brand, model, year);
+
+CREATE INDEX idx_car_listings_status ON car_listings (status);
+
+CREATE INDEX idx_transactions_status ON transactions (status);
+
+CREATE INDEX idx_locations_city ON locations (city);
+
+CREATE INDEX idx_auctions_start_end_date ON auctions (start_date, end_date);
