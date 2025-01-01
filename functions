@@ -1,0 +1,90 @@
+-- FUNCTIONS
+-- 1
+DELIMITER $$
+
+CREATE FUNCTION GetAverageRating (listingID INT)
+    RETURNS DECIMAL(3,2)
+    DETERMINISTIC
+BEGIN
+    DECLARE avgRating DECIMAL(3,2);
+
+    SELECT AVG(rating)
+    INTO avgRating
+    FROM reviews
+    WHERE listing_id = listingID;
+
+    RETURN IFNULL(avgRating, 0);
+END$$
+
+DELIMITER ;
+
+SELECT GetAverageRating(8);
+
+SELECT listing_id, GetAverageRating(listing_id) AS average_rating
+FROM car_listings;
+
+-- 2
+DELIMITER $$
+
+CREATE FUNCTION HasActiveBids (auctionID INT)
+    RETURNS BOOLEAN
+    DETERMINISTIC
+BEGIN
+    DECLARE activeBids INT;
+
+    SELECT COUNT(*)
+    INTO activeBids
+    FROM auction_bids
+    WHERE auction_id = auctionID
+      AND bid_date <= NOW();
+
+    RETURN activeBids > 0;
+END$$
+
+DELIMITER ;
+
+SELECT HasActiveBids(1);
+
+-- 3
+DELIMITER $$
+
+CREATE FUNCTION GetUnsoldCarsCount ()
+    RETURNS INT
+    DETERMINISTIC
+BEGIN
+    DECLARE unsoldCars INT;
+
+    SELECT COUNT(*)
+    INTO unsoldCars
+    FROM car_listings
+    WHERE status = 'Активне'
+      AND date_posted < DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+      AND listing_id NOT IN (SELECT DISTINCT listing_id FROM transactions WHERE date <= CURRENT_DATE);
+
+    RETURN unsoldCars;
+END$$
+
+DELIMITER ;
+
+SELECT GetUnsoldCarsCount();
+
+-- 4
+DELIMITER $$
+
+CREATE FUNCTION GetTotalMaintenanceCost (carID INT)
+    RETURNS DECIMAL(10,2)
+    DETERMINISTIC
+BEGIN
+    DECLARE totalCost DECIMAL(10,2);
+
+    SELECT SUM(cost)
+    INTO totalCost
+    FROM maintenance_records
+    WHERE car_id = carID;
+
+    RETURN IFNULL(totalCost, 0);
+END$$
+
+DELIMITER ;
+
+SELECT GetTotalMaintenanceCost(7);
