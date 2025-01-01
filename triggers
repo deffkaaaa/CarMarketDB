@@ -1,0 +1,219 @@
+-- TRIGGERS
+-- 1
+DELIMITER $$
+
+CREATE TRIGGER cars_after_insert
+    AFTER INSERT ON cars
+    FOR EACH ROW
+BEGIN
+    INSERT INTO system_events (event_type, user_id, table_name, action, new_value, date_created, status)
+    VALUES (
+               'Дія користувача',
+               NULL,
+               'cars',
+               'Створення',
+               JSON_OBJECT(
+                       'car_id', NEW.car_id,
+                       'brand', NEW.brand,
+                       'model', NEW.model,
+                       'year', NEW.year,
+                       'color', NEW.color,
+                       'mileage', NEW.mileage,
+                       'transmission', NEW.transmission,
+                       'fuel_type', NEW.fuel_type,
+                       'engine_size', NEW.engine_size,
+                       'car_condition', NEW.car_condition
+               ),
+               NOW(),
+               'Виконано'
+           );
+END;
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER cars_after_update
+    AFTER UPDATE ON cars
+    FOR EACH ROW
+BEGIN
+    INSERT INTO system_events (event_type, user_id, table_name, action, old_value, new_value, date_created, status)
+    VALUES (
+               'Дія користувача',
+               NULL, -- У таблиці cars немає посилання на user_id, тому залишається NULL
+               'cars',
+               'Оновлення',
+               JSON_OBJECT(
+                       'car_id', OLD.car_id,
+                       'brand', OLD.brand,
+                       'model', OLD.model,
+                       'year', OLD.year,
+                       'color', OLD.color,
+                       'mileage', OLD.mileage,
+                       'transmission', OLD.transmission,
+                       'fuel_type', OLD.fuel_type,
+                       'engine_size', OLD.engine_size,
+                       'car_condition', OLD.car_condition
+               ),
+               JSON_OBJECT(
+                       'car_id', NEW.car_id,
+                       'brand', NEW.brand,
+                       'model', NEW.model,
+                       'year', NEW.year,
+                       'color', NEW.color,
+                       'mileage', NEW.mileage,
+                       'transmission', NEW.transmission,
+                       'fuel_type', NEW.fuel_type,
+                       'engine_size', NEW.engine_size,
+                       'car_condition', NEW.car_condition
+               ),
+               NOW(),
+               'Виконано'
+           );
+END;
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER cars_after_delete
+    AFTER DELETE ON cars
+    FOR EACH ROW
+BEGIN
+    INSERT INTO system_events (event_type, user_id, table_name, action, old_value, date_created, status)
+    VALUES (
+               'Дія користувача',
+               NULL, -- У таблиці cars немає посилання на user_id, тому залишається NULL
+               'cars',
+               'Видалення',
+               JSON_OBJECT(
+                       'car_id', OLD.car_id,
+                       'brand', OLD.brand,
+                       'model', OLD.model,
+                       'year', OLD.year,
+                       'color', OLD.color,
+                       'mileage', OLD.mileage,
+                       'transmission', OLD.transmission,
+                       'fuel_type', OLD.fuel_type,
+                       'engine_size', OLD.engine_size,
+                       'car_condition', OLD.car_condition
+               ),
+               NOW(),
+               'Виконано'
+           );
+END;
+
+DELIMITER ;
+
+SELECT * FROM system_events WHERE table_name = 'cars';
+
+-- 2
+DELIMITER $$
+
+CREATE TRIGGER after_transaction_insert
+    AFTER INSERT ON transactions
+    FOR EACH ROW
+BEGIN
+    UPDATE car_listings
+    SET status = 'Неактивне'
+    WHERE listing_id = NEW.listing_id;
+
+    INSERT INTO system_events (
+        event_type, user_id, table_name, action, old_value, new_value, message, date_created, status
+    ) VALUES (
+                 'Дія користувача',
+                 NEW.buyer_id,
+                 'car_listings',
+                 'Оновлення',
+                 '{"status": "Активне"}',
+                 '{"status": "Неактивне"}',
+                 CONCAT('Оголошення з ID ', NEW.listing_id, ' було автоматично деактивовано після транзакції'),
+                 NOW(),
+                 'Виконано'
+             );
+END$$
+
+DELIMITER ;
+
+SELECT status FROM car_listings WHERE listing_id = 6;
+SELECT * FROM system_events WHERE table_name = 'car_listings' AND action = 'Оновлення';
+
+
+-- 3
+DELIMITER $$
+
+CREATE TRIGGER before_insurance_check
+    BEFORE UPDATE ON insurance_policies
+    FOR EACH ROW
+BEGIN
+    IF DATEDIFF(NEW.end_date, NOW()) <= 30 THEN
+        INSERT INTO system_events (
+            event_type, user_id, table_name, action, message, date_created, status
+        ) VALUES (
+                     'Сповіщення',
+                     NULL,
+                     'insurance_policies',
+                     'Оновлення',
+                     CONCAT('Страховка для автомобіля з ID ', NEW.car_id, ' закінчується через 30 днів.'),
+                     NOW(),
+                     'В процесі'
+                 );
+    END IF;
+END$$
+
+DELIMITER ;
+
+SELECT * FROM system_events
+WHERE table_name = 'insurance_policies';
+
+-- 4
+DELIMITER $$
+
+CREATE TRIGGER update_seller_rating
+    AFTER INSERT ON reviews
+    FOR EACH ROW
+BEGIN
+    DECLARE seller_id INT;
+
+    SET seller_id = (SELECT user_id
+                     FROM car_listings
+                     WHERE listing_id = NEW.listing_id);
+
+    UPDATE users
+    SET role = 'Продавець',
+        middle_name = COALESCE((SELECT ROUND(AVG(rating), 2)
+                                FROM reviews
+                                WHERE listing_id IN (
+                                    SELECT listing_id
+                                    FROM car_listings
+                                    WHERE user_id = seller_id
+                                )), 0)
+    WHERE user_id = seller_id;
+END$$
+
+DELIMITER ;
+
+SELECT user_id, first_name, last_name, role, middle_name AS average_rating
+FROM users
+WHERE role = 'Продавець';
+
+
+-- 5
+DELIMITER $$
+
+CREATE TRIGGER prevent_bid_after_auction_end
+    BEFORE INSERT ON auction_bids
+    FOR EACH ROW
+BEGIN
+    DECLARE auction_end_date DATETIME;
+    SELECT end_date INTO auction_end_date FROM auctions WHERE auction_id = NEW.auction_id;
+
+    IF auction_end_date <= CURRENT_TIMESTAMP THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Не можна зробити ставку, оскільки аукціон вже завершено';
+    END IF;
+END;
+
+DELIMITER ;
+
+SELECT * FROM auctions WHERE auction_id = 2;
+
