@@ -1,0 +1,42 @@
+-- ROLES
+CREATE USER 'admin'@'localhost' IDENTIFIED BY '1111';
+CREATE USER 'seller'@'localhost' IDENTIFIED BY '1111';
+CREATE USER 'buyer'@'localhost' IDENTIFIED BY '1111';
+CREATE USER 'guest'@'localhost' IDENTIFIED BY '1111';
+
+CREATE ROLE admin_role;
+CREATE ROLE seller_role;
+CREATE ROLE buyer_role;
+CREATE ROLE guest_role;
+
+GRANT ALL PRIVILEGES ON *.* TO admin_role;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON cars TO seller_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON car_listings TO seller_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON car_features TO seller_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON car_feature_details TO seller_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON auctions TO seller_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON insurance_policies TO seller_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON maintenance_records TO seller_role;
+GRANT SELECT, INSERT, UPDATE ON locations TO seller_role;
+GRANT SELECT, INSERT, UPDATE ON transactions TO seller_role;
+GRANT SELECT ON reviews TO seller_role;
+
+GRANT SELECT ON cars TO buyer_role;
+GRANT SELECT ON car_listings TO buyer_role;
+GRANT SELECT, INSERT ON reviews TO buyer_role;
+GRANT SELECT, INSERT ON auctions TO buyer_role;
+GRANT SELECT, INSERT ON auction_bids TO buyer_role;
+
+GRANT SELECT ON cars TO guest_role;
+GRANT SELECT ON car_listings TO guest_role;
+
+GRANT admin_role TO 'admin'@'localhost';
+GRANT seller_role TO 'seller'@'localhost';
+GRANT buyer_role TO 'buyer'@'localhost';
+GRANT guest_role TO 'guest'@'localhost';
+
+SET DEFAULT ROLE admin_role FOR 'admin'@'localhost';
+SET DEFAULT ROLE seller_role FOR 'seller'@'localhost';
+SET DEFAULT ROLE buyer_role FOR 'buyer'@'localhost';
+SET DEFAULT ROLE guest_role FOR 'guest'@'localhost';
