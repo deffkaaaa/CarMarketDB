@@ -1,0 +1,505 @@
+-- INSERTS
+-- тестові записи
+INSERT INTO users (first_name, last_name, middle_name, email, phone_number, password, role, date_registered)
+VALUES ('Марія', 'Глинка', 'Ігорівна', 'glinkamaria33@gmail.com', '0981162618', '1111',  'Адміністратор', '2024-12-22 15:38:00');
+
+INSERT INTO users (first_name, last_name, middle_name, email, phone_number, password, role, date_registered)
+VALUES ('Ігор', 'Глинка', 'Богданович', 'igor6499@gmail.com', '0967421142', '12345', 'Гість', '2024-12-22 18:15:12');
+
+INSERT INTO users (first_name, last_name, email, phone_number, password)
+VALUES ('Іван', 'Петренко', 'ivan.petrenko@gmail.com', '380123456789', 'securepassword');
+
+INSERT INTO users (first_name, last_name, middle_name, email, phone_number, password, role, date_registered)
+VALUES ('Тамара', 'Глинка', 'Петрівна', 'glinkatamara36@gmail.com', '0967421143', '54321', 'Покупець', '24-12-23 21:18:07');
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Toyota', 'Camry', 2020, 'Чорний', 20000, 'Автоматична', 'Бензин', 2.5, 'Вживаний');
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Toyota', 'Corolla', 2020, 'Червоний', 15000, 'Автоматична', 'Бензин', 1.8, 'Вживаний');
+
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price)
+VALUES (3, 5, NULL, 1, NOW(), 'Активне', '12000');
+
+INSERT INTO reviews (listing_id, user_id, rating, comment, date_posted)
+VALUES (2, 2, 4, 'Добре авто', NOW()),
+       (2, 3, 5, 'Чудовий стан', NOW()),
+       (2, 4, 3, 'Могло бути краще', NOW());
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('BMW', 'X5', 2022, 'Синій', 5000, 'Автоматична', 'Бензин', 3.0, 'Новий');
+
+INSERT INTO auctions (car_id, start_date, end_date, starting_price)
+VALUES (4, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 30000);
+
+INSERT INTO auction_bids (auction_id, user_id, bid_amount, bid_date)
+VALUES (1, 2, 32000, NOW()),
+       (1, 5, 34000, NOW()),
+       (1, 3, 35200, NOW()),
+       (1, 4, 35700, NOW());
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Audi', 'A4', 2018, 'Чорний', 60000, 'Механічна', 'Дизель', 2.0, 'Вживаний');
+
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price)
+VALUES (5, 2, NULL, 1, DATE_SUB(CURRENT_DATE, INTERVAL 7 MONTH), 'Активне', 35000);
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Mercedes', 'C-Class', 2021, 'Сірий', 10000, 'Автоматична', 'Бензин', 2.0, 'Новий');
+
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price)
+VALUES (6, 5, NULL, 1, NOW(), 'Активне', '38000');
+
+INSERT INTO transactions (listing_id, buyer_id, date, final_price, payment_method, status)
+VALUES (5, 4, NOW(), 25000, 'Банківська картка', 'Виконана');
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Tesla', 'Model 3', 2021, 'Білий', 12000, 'Автоматична', 'Електро', 2.0, 'Новий');
+
+INSERT INTO locations (city, region, address)
+VALUE ('Івано-Франківськ', 'Івано-Франківська область', 'Калуське шосе, 2К');
+
+INSERT INTO service_centers (name, location_id)
+VALUE ('Альянс-ІФ', 2);
+
+INSERT INTO maintenance_records (car_id, service_center_id, description, date, cost)
+VALUES (7, 1, 'Заміна гальмівних колодок', '2024-06-01', 200),
+       (7, 1, 'Заміна масла', '2024-07-01', 150);
+
+SELECT GetTotalMaintenanceCost(1);
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size)
+VALUE ('Mercedes-AMG', 'GT 63 S', '2023', 'Graphite', '88000', 'Механічна', 'Бензин', 4.0);
+
+UPDATE cars
+SET color = 'Графіт'
+WHERE car_id = 8;
+
+UPDATE cars
+SET brand = 'Mercedes-Benz'
+WHERE car_id = 6;
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size)
+VALUE ('Tesla', 'Model X', '2019', 'Білий', '213500', 'Автоматична', 'Електро', NULL);
+
+UPDATE cars
+SET engine_size = NULL
+WHERE car_id = 7;
+
+DELETE FROM cars
+WHERE car_id = 9;
+
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price)
+VALUES (8, 1, NULL, 2, NOW(), 'Активне', 300000);
+
+INSERT INTO transactions (listing_id, buyer_id, date, final_price, payment_method, status)
+VALUES (6, 2, NOW(), 150000.00, 'Готівка', 'Виконана');
+
+INSERT INTO users (first_name, last_name, email, phone_number, password, role)
+VALUES ('Олексій', 'Іваненко', 'alex@gmail.com', '380123456788', 'password123', 'Покупець');
+
+INSERT INTO locations (city, region, address)
+VALUES ('Київ', 'Київська', 'вул. Незалежності, 1');
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Toyota', 'Camry', 2020, 'Чорний', 15000, 'Автоматична', 'Бензин', 2.5, 'Новий');
+
+INSERT INTO insurance_policies (car_id, provider, start_date, end_date)
+VALUES (10, 'Страхова компанія "Альфа"', '2024-01-01', '2024-02-15'); -- Закінчується через 50 днів
+
+UPDATE insurance_policies
+SET end_date = '2024-01-20'
+WHERE policy_id = 1;
+
+INSERT INTO users (first_name, last_name, email, phone_number, password, role)
+VALUES
+    ('Євгеній', 'Петров', 'petrov@gmail.com', '0973423421', 'password123', 'Продавець'),
+    ('Анна', 'Іванова', 'anna.ivanova@ukr.net', '0987654321', 'password456', 'Покупець');
+
+UPDATE users
+SET first_name = 'Євгеній'
+WHERE user_id = '8';
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size)
+VALUES
+    ('Toyota', 'Corolla', 2020, 'Синій', 15000, 'Автоматична', 'Бензин', 1.8),
+    ('Honda', 'Civic', 2019, 'Червоний', 20000, 'Механічна', 'Газ', 2.0);
+
+INSERT INTO car_listings (car_id, user_id, location_id, date_posted, status, car_price)
+VALUES
+    (11, 8, NULL, '2024-01-01 10:00:00', 'Активне', 12000),
+    (12, 8, NULL, '2024-01-02 11:00:00', 'Активне', 16000);
+
+UPDATE car_listings
+SET user_id = 8
+WHERE car_id = 11;
+
+UPDATE car_listings
+SET user_id = 8
+WHERE car_id = 12;
+
+INSERT INTO reviews (listing_id, user_id, rating, comment)
+VALUES
+    (9, 9, 4, 'Дуже хороший автомобіль!'),
+    (9, 9, 5, 'Все супер, рекомендую!'),
+    (10, 9, 3, 'Могло бути краще.');
+
+INSERT INTO auctions (car_id, start_date, end_date, starting_price)
+VALUES (5, '2024-12-01 10:00:00', '2024-12-25 12:00:00', 48000.00);
+
+UPDATE auctions
+SET end_date = '2024-12-28 12:00:00'
+WHERE auction_id = 2;
+
+INSERT INTO auction_bids (auction_id, user_id, bid_amount, bid_date)
+VALUES (2, 9, 48500.00, '2024-12-20 14:00:00');
+
+UPDATE auctions
+SET end_date = '2024-12-26 12:00:00'
+WHERE auction_id = 2;
+
+INSERT INTO auction_bids (auction_id, user_id, bid_amount, bid_date)
+VALUES (2, 3, 50000.00, '2024-12-26 14:00:00');
+
+INSERT INTO locations (city, region, address)
+VALUES ('Київ', 'Київська область', 'Вулиця 1, 1'),
+       ('Одеса', 'Одеська область', 'Вулиця 2, 2');
+
+INSERT INTO users (first_name, last_name, email, phone_number, password, role)
+VALUES ('Іван', 'Іванов', 'ivan@exmaple.com', '123456789', 'password123', 'Продавець'),
+       ('Оля', 'Олексійчук', 'olga@exmaple.com', '987654321', 'password123', 'Покупець');
+
+INSERT INTO dealerships (name, location_id, contact_info, website)
+VALUES ('Автосалон Київ', 4, 'тел. 123-456-789', 'www.dealer-kyiv.com'),
+       ('Автосалон Одеса', 5, 'тел. 987-654-321', 'www.dealer-odesa.com');
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Toyota', 'Camry', 2020, 'Чорний', 15000.50, 'Автоматична', 'Бензин', 2.5, 'Вживаний'),
+       ('BMW', 'X5', 2022, 'Білий', 5000.75, 'Механічна', 'Дизель', 3.0, 'Новий');
+
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price)
+VALUES (13, 10, 1, 1, '2024-12-20 12:00:00', 'Активне', 21000),
+       (14, 11, 2, 2, '2024-12-21 15:00:00', 'Активне', 55000);
+
+UPDATE car_listings
+SET car_price = '19000'
+WHERE car_id = 2;
+
+UPDATE car_listings
+SET car_price = '17500'
+WHERE car_id = 3;
+
+UPDATE car_listings
+SET car_price = '17500'
+WHERE car_id = 3;
+
+INSERT INTO users (first_name, last_name, middle_name, email, phone_number, password, role, date_registered)
+VALUE ('Анастасія', 'Глинка', 'Ігорівна', 'glinkanastya22@gmail.com', '0978242937', 'Nastya2010', 'Покупець', '2024-12-15 13:10:01');
+
+INSERT INTO users(first_name, last_name, middle_name, email, phone_number, password, role, date_registered)
+VALUE ('Юлія', 'Зелюк', 'Максимівна', 'yuliiazeliuk@gmail.com', '0509012860', 'Yuliia123123', 'Продавець', '2024-12-05 15:35:38');
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size)
+VALUE ('Ferrari', 'LaFerrari', '2022', 'Red Wine', '123000', 'Механічна', 'Бензин', 6.3);
+
+INSERT INTO locations (city, region, address)
+VALUES ('Львів', 'Львівська область', 'Вулиця 3, 3');
+
+INSERT INTO dealerships (name, location_id, contact_info, website)
+VALUES ('Автосалон Львів', 6, 'тел. 111-222-333', 'www.dealer-lviv.com');
+
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price)
+VALUES
+    (15, 5, 3, 2, '2024-12-24 10:00:00', 'В очікуванні', '1420000'),
+    (15, 13, 3, 6, '2024-12-25 11:00:00', 'В очікуванні', '1460000');
+
+INSERT INTO locations (city, region, address)
+VALUES ('Харків', 'Харківська область', 'Проспект Науки, 42');
+
+INSERT INTO service_centers (name, location_id)
+VALUES ('Сервіс Харків', 7);
+
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition)
+VALUES ('Honda', 'Civic', 2018, 'Синій', 50000.0, 'Автоматична', 'Бензин', 1.8, 'Вживаний');
+
+INSERT INTO maintenance_records (car_id, service_center_id, description, date, cost)
+VALUES
+    (16, 2, 'Заміна масла', '2024-12-20', 1000.50),
+    (16, 2, 'Технічне обслуговування', '2024-12-22', 2500.75),
+    (14, 1, 'Ремонт ходової частини', '2024-12-23', 3200.00);
+
+-- записи для select
+-- Таблиця users 1
+INSERT INTO users (first_name, last_name, middle_name, email, phone_number, password, role, date_registered) VALUES
+                                                                                                                 ('Олександр', 'Ковальчук', 'Іванович', 'oleksandr.kov@gmail.com', '+380931112233', 'password123', 'Адміністратор', '2023-12-01 10:00:00'), -- id 14 (1)
+                                                                                                                 ('Марія', 'Іваненко', 'Петрівна', 'mariya.ivan@gmail.com', '+380941122334', 'password123', 'Продавець', '2023-12-02 11:00:00'), -- id 15 (2)
+                                                                                                                 ('Ігор', 'Гнатюк', 'Сергійович', 'ihor.gnat@gmail.com', '+380951122445', 'password123', 'Покупець', '2023-12-03 12:00:00'), -- id 16 (3)
+                                                                                                                 ('Анна', 'Сидоренко', NULL, 'anna.sid@gmail.com', '+380961123456', 'password123', 'Покупець', '2023-12-04 13:00:00'), -- id 17 (4)
+                                                                                                                 ('Петро', 'Мельник', NULL, 'petro.mel@gmail.com', '+380671234567', 'password123', 'Продавець', '2023-12-05 14:00:00'), -- id 18 (5)
+                                                                                                                 ('Олена', 'Кузьменко', 'Миколаївна', 'olena.kuz@gmail.com', '+380681112233', 'password123', 'Покупець', '2023-12-06 15:00:00'), -- id 19 (6)
+                                                                                                                 ('Дмитро', 'Тарасенко', 'Іванович', 'dmytro.tar@gmail.com', '+380691112344', 'password123', 'Продавець', '2023-12-07 16:00:00'), -- id 20 (7)
+                                                                                                                 ('Катерина', 'Шевченко', 'Олександрівна', 'kateryna.shev@gmail.com', '+380501112233', 'password123', 'Гість', '2023-12-08 17:00:00'), -- id 21 (8)
+                                                                                                                 ('Максим', 'Гончар', NULL, 'maksym.gon@gmail.com', '+380931112244', 'password123', 'Гість', '2023-12-09 18:00:00'), -- id 22 (9)
+                                                                                                                 ('Ольга', 'Петренко', 'Михайлівна', 'olha.pet@gmail.com', '+380931122335', 'password123', 'Покупець', '2023-12-10 19:00:00'); -- id 23 (10)
+
+-- Таблиця cars 2
+INSERT INTO cars (brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition) VALUES
+                                                                                                               ('Toyota', 'Corolla', 2020, 'Червоний', 15000.00, 'Автоматична', 'Бензин', 1.8, 'Новий'), -- id 17
+                                                                                                               ('Ford', 'Focus', 2018, 'Синій', 30000.00, 'Механічна', 'Дизель', 2.0, 'Вживаний'),
+                                                                                                               ('BMW', 'X5', 2022, 'Чорний', 10000.00, 'Автоматична', 'Гібрид', 3.0, 'Новий'),
+                                                                                                               ('Audi', 'A4', 2019, 'Білий', 20000.00, 'Автоматична', 'Бензин', 2.0, 'Вживаний'),
+                                                                                                               ('Honda', 'Civic', 2021, 'Сірий', 5000.00, 'Механічна', 'Електро', NULL, 'Новий'),
+                                                                                                               ('Nissan', 'Qashqai', 2020, 'Срібний', 25000.00, 'Автоматична', 'Газ', 1.6, 'Вживаний'),
+                                                                                                               ('Chevrolet', 'Camaro', 2021, 'Жовтий', 8000.00, 'Механічна', 'Бензин', 2.5, 'Новий'),
+                                                                                                               ('Volkswagen', 'Golf', 2017, 'Зелений', 35000.00, 'Автоматична', 'Дизель', 1.6, 'Вживаний'),
+                                                                                                               ('Hyundai', 'Tucson', 2019, 'Синій', 22000.00, 'Автоматична', 'Гібрид', 2.0, 'Вживаний'),
+                                                                                                               ('Kia', 'Sportage', 2021, 'Червоний', 12000.00, 'Механічна', 'Бензин', 2.4, 'Новий');
+
+-- Таблиця car_listings 3
+INSERT INTO car_listings (car_id, user_id, dealership_id, location_id, date_posted, status, car_price) VALUES
+                                                                                                           (17, 15, 4, 8, '2023-12-01 10:30:00', 'Активне', 20000.00), -- id 15 (1)
+                                                                                                           (18, 16, NULL, 9, '2023-12-02 11:15:00', 'Активне', 15000.00), -- id 16 (2)
+                                                                                                           (19, 18, 5, 14, '2023-12-03 12:45:00', 'Активне', 50000.00), -- id 17 (3)
+                                                                                                           (20, 20, NULL, 15, '2023-12-04 13:10:00', 'В очікуванні', 30000.00), -- id 18 (4)
+                                                                                                           (21, 21, 6, 24, '2023-12-05 14:50:00', 'Неактивне', 18000.00), -- id 19 (5)
+                                                                                                           (22, 15, NULL, 25, '2023-12-06 15:20:00', 'Активне', 22000.00), -- id 20 (6)
+                                                                                                           (23, 19, 7, 26, '2023-12-07 16:05:00', 'Активне', 40000.00), -- id 21 (7)
+                                                                                                           (24, 17, 10, 26, '2023-12-08 17:30:00', 'Активне', 12000.00), -- id 22 (8)
+                                                                                                           (25, 21, NULL, 11, '2023-12-09 18:15:00', 'Неактивне', 25000.00); -- id 23 (9)
+
+-- Таблиця locations 4
+INSERT INTO locations (city, region, address) VALUES
+                                                  ('Київ', 'Київська', 'вул. Хрещатик, 1'), -- id 8 (1)
+                                                  ('Львів', 'Львівська', 'просп. Свободи, 45'), -- id 9 (2)
+                                                  ('Одеса', 'Одеська', 'вул. Дерибасівська, 12'), -- id 10 (3)
+                                                  ('Харків', 'Харківська', 'вул. Сумська, 33'), -- id 11 (4)
+                                                  ('Дніпро', 'Дніпропетровська', 'просп. Дмитра Яворницького, 22'), -- id 12 (5)
+                                                  ('Запоріжжя', 'Запорізька', 'вул. Соборна, 19'), -- id 13 (6)
+                                                  ('Івано-Франківськ', 'Івано-Франківська', 'вул. Незалежності, 100'), -- id 14 (7)
+                                                  ('Тернопіль', 'Тернопільська', 'вул. Руська, 8'), -- id 15 (8)
+                                                  ('Чернігів', 'Чернігівська', 'просп. Миру, 11'), -- id 16 (9)
+                                                  ('Вінниця', 'Вінницька', 'вул. Соборна, 20'), -- id 17 (10)
+                                                  ('Полтава', 'Полтавська', 'вул. Соборності, 30'), -- id 18 (11)
+                                                  ('Хмельницький', 'Хмельницька', 'вул. Проскурівська, 15'), -- id 19 (12)
+                                                  ('Рівне', 'Рівненська', 'вул. Соборна, 25'), -- id 20 (13)
+                                                  ('Житомир', 'Житомирська', 'вул. Михайлівська, 10'), -- id 21 (14)
+                                                  ('Кропивницький', 'Кіровоградська', 'вул. Велика Перспективна, 5'), -- id 22 (15)
+                                                  ('Суми', 'Сумська', 'вул. Харківська, 18'), -- id 23 (16)
+                                                  ('Луцьк', 'Волинська', 'просп. Волі, 21'), -- id 24 (17)
+                                                  ('Черкаси', 'Черкаська', 'бульв. Шевченка, 35'), -- id 25 (18)
+                                                  ('Ужгород', 'Закарпатська', 'вул. Корзо, 2'), -- id 26 (19)
+                                                  ('Чернівці', 'Чернівецька', 'вул. Кобилянської, 7'); -- id 27 (20)
+
+-- Таблиця dealerships 5
+INSERT INTO dealerships (name, location_id, contact_info, website) VALUES
+                                                                       ('АвтоХіт', 8, 'Телефон: +380441234567, Email: info@autohit.ua', 'https://autohit.ua'), -- id 4 (1)
+                                                                       ('ЛьвівАвто', 9, 'Телефон: +380322223344, Email: contact@lvivauto.ua', 'https://lvivauto.ua'), -- id 5 (2)
+                                                                       ('ОдесаКар', 10, 'Телефон: +380482556677, Email: sales@odesacar.ua', 'https://odesacar.ua'), -- id 6 (3)
+                                                                       ('ХарківМоторс', 11, 'Телефон: +380572998877, Email: support@kharkivmotors.ua', 'https://kharkivmotors.ua'), -- id 7 (4)
+                                                                       ('ДніпроАвтоцентр', 12, 'Телефон: +380562445566, Email: info@dniproauto.ua', 'https://dniproauto.ua'), -- id 8 (5)
+                                                                       ('ЗапоріжжяАвто', 13, 'Телефон: +380612112233, Email: service@zapauto.ua', 'https://zapauto.ua'), -- id 9 (6)
+                                                                       ('ФранківськАвто', 14, 'Телефон: +380342332211, Email: office@ifauto.ua', 'https://ifauto.ua'), -- id 10 (7)
+                                                                       ('ТернопільКар', 15, 'Телефон: +380352778899, Email: info@ternopilcar.ua', 'https://ternopilcar.ua'), -- id 11 (8)
+                                                                       ('ЧернігівАвто', 16, 'Телефон: +380462556677, Email: contact@chernihivauto.ua', 'https://chernihivauto.ua'), -- id 12 (9)
+                                                                       ('ВінницяМоторс', 17, 'Телефон: +380432334455, Email: info@vinnitsyamotors.ua', 'https://vinnitsyamotors.ua'), -- id 13 (10)
+                                                                       ('ПолтаваКар', 18, 'Телефон: +380532667788, Email: support@poltavacar.ua', 'https://poltavacar.ua'), -- id 14 (11)
+                                                                       ('ХмельницькийАвто', 19, 'Телефон: +380382556644, Email: service@khmauto.ua', 'https://khmauto.ua'), -- id 15 (12)
+                                                                       ('РівнеМоторс', 20, 'Телефон: +380362223344, Email: contact@rivnemotors.ua', 'https://rivnemotors.ua'), -- id 16 (13)
+                                                                       ('ЖитомирАвто', 21, 'Телефон: +380412556677, Email: info@zhytomyrauto.ua', 'https://zhytomyrauto.ua'), -- id 17 (14)
+                                                                       ('КропивницькийКар', 22, 'Телефон: +380522445566, Email: support@kropyvnytskyicar.ua', 'https://kropyvnytskyicar.ua'), -- id 18 (15)
+                                                                       ('СумиАвтоцентр', 23, 'Телефон: +380542334455, Email: office@sumyautocenter.ua', 'https://sumyautocenter.ua'), -- id 19 (16)
+                                                                       ('ЛуцькАвто', 24, 'Телефон: +380332667788, Email: contact@lutskauto.ua', 'https://lutskauto.ua'), -- id 20 (17)
+                                                                       ('ЧеркасиКар', 25, 'Телефон: +380472556677, Email: info@cherkasycar.ua', 'https://cherkasycar.ua'), -- id 21 (18)
+                                                                       ('УжгородАвто', 26, 'Телефон: +380312334455, Email: support@uzhgorodauto.ua', 'https://uzhgorodauto.ua'); -- id 22 (19)
+
+
+-- Таблиця reviews 6
+INSERT INTO reviews (listing_id, user_id, rating, comment, date_posted) VALUES
+                                                                            (1, 15, 4, 'Авто в гарному стані, але ціна трохи завищена', '2024-12-01 10:00:00'),
+                                                                            (2, 1, 5, 'Неймовірний спорткар, дуже задоволена покупкою. Ціна потішила)', '2024-12-28 15:52:30'),
+                                                                            (3, 16, 5, 'Дуже задоволений покупкою!', '2024-12-02 11:30:00'),
+                                                                            (4, 17, 3, 'Потребує незначного ремонту', '2024-12-03 14:00:00'),
+                                                                            (5, 18, 5, 'Ідеальний стан!', '2024-12-04 16:45:00'),
+                                                                            (6, 19, 2, 'Багато дефектів, не рекомендую', '2024-12-05 18:20:00'),
+                                                                            (7, 15, 4, 'Загалом непогано', '2024-12-06 19:00:00'),
+                                                                            (8, 16, 5, 'Все супер!', '2024-12-07 20:10:00'),
+                                                                            (9, 17, 3, 'Ціна відповідає якості', '2024-12-08 21:30:00'),
+                                                                            (10, 18, 5, 'Однозначно рекомендую!', '2024-12-09 22:15:00'),
+                                                                            (11, 19, 4, 'Мені підійшло', '2024-12-10 23:00:00');
+
+-- Таблиця auctions 7
+INSERT INTO auctions (car_id, start_date, end_date, starting_price) VALUES
+                                                                        (17, '2024-12-01 09:00:00', '2024-12-07 18:00:00', 10000.00), -- id 3 (1)
+                                                                        (18, '2024-12-02 10:00:00', '2024-12-08 19:00:00', 12000.00),
+                                                                        (19, '2024-12-03 11:00:00', '2024-12-09 20:00:00', 8000.00),
+                                                                        (20, '2024-12-04 12:00:00', '2024-12-10 21:00:00', 15000.00),
+                                                                        (21, '2024-12-05 13:00:00', '2024-12-11 22:00:00', 11000.00),
+                                                                        (22, '2024-12-06 09:30:00', '2024-12-12 18:30:00', 9500.00),
+                                                                        (23, '2024-12-07 10:15:00', '2024-12-13 19:15:00', 10500.00),
+                                                                        (24, '2024-12-08 11:00:00', '2024-12-14 20:00:00', 8900.00),
+                                                                        (25, '2024-12-09 12:45:00', '2024-12-15 21:45:00', 14000.00);
+
+update auctions
+set end_date = '2025-12-30 18:00:00'
+where auction_id = 3;
+
+update auctions
+set end_date = '2025-12-31 19:00:00'
+where auction_id = 4;
+
+update auctions
+set end_date = '2025-01-01 11:00:00'
+where auction_id = 5;
+
+update auctions
+set end_date = '2025-01-02 12:00:00'
+where auction_id = 6;
+
+update auctions
+set end_date = '2025-01-03 13:00:00'
+where auction_id = 7;
+
+update auctions
+set end_date = '2025-01-04 09:30:00'
+where auction_id = 8;
+
+update auctions
+set end_date = '2025-01-05 10:15:00'
+where auction_id = 9;
+
+update auctions
+set end_date = '2025-01-06 11:00:00'
+where auction_id = 10;
+
+update auctions
+set end_date = '2025-01-07 12:45:00'
+where auction_id = 11;
+
+update auctions
+set end_date = '2025-01-08 14:30:00'
+where auction_id = 12;
+
+-- Таблиця auction_bids 8
+INSERT INTO auction_bids (auction_id, user_id, bid_amount, bid_date) VALUES
+                                                                         (3, 15, 10500.00, '2024-12-01 15:00:00'),
+                                                                         (3, 16, 11000.00, '2024-12-02 16:00:00'),
+                                                                         (4, 17, 12500.00, '2024-12-02 17:00:00'),
+                                                                         (4, 18, 13000.00, '2024-12-03 18:00:00'),
+                                                                         (5, 19, 8500.00, '2024-12-03 19:00:00'),
+                                                                         (6, 15, 15500.00, '2024-12-04 20:00:00'),
+                                                                         (7, 16, 11500.00, '2024-12-05 21:00:00'),
+                                                                         (8, 20, 9600.00, '2024-12-06 22:00:00'),
+                                                                         (9, 21, 10800.00, '2024-12-07 23:00:00'),
+                                                                         (10, 9, 9100.00, '2024-12-08 11:30:00'),
+                                                                         (11, 15, 14500.00, '2024-12-09 12:45:00');
+
+-- Таблиця car_features 9
+INSERT INTO car_features (name) VALUES
+                                    ('ABS'),
+                                    ('Клімат-контроль'),
+                                    ('Камера заднього виду'),
+                                    ('Круїз-контроль'),
+                                    ('Підігрів сидінь'),
+                                    ('Датчики паркування'),
+                                    ('Шкіряний салон'),
+                                    ('Bluetooth'),
+                                    ('Система контролю тиску в шинах'),
+                                    ('Мультимедійна система'),
+                                    ('Автопілот'),
+                                    ('LED фари'),
+                                    ('Склопідйомники'),
+                                    ('Сигналізація'),
+                                    ('Електропривід сидінь'),
+                                    ('Навігаційна система'),
+                                    ('Безключовий доступ'),
+                                    ('Панорамний дах'),
+                                    ('Електронний стабілізатор'),
+                                    ('Протиугінна система');
+
+-- Таблиця car_feature_details 10
+INSERT INTO car_feature_details (car_id, feature_id, description) VALUES
+                                                                      (17, 1, 'Антиблокувальна система для безпеки гальмування'),
+                                                                      (17, 2, 'Двозонний клімат-контроль'),
+                                                                      (18, 3, 'Камера з ширококутним оглядом для комфортного паркування'),
+                                                                      (18, 4, 'Система підтримки швидкості на шосе'),
+                                                                      (19, 5, 'Підігрів передніх і задніх сидінь'),
+                                                                      (19, 6, 'Датчики паркування переднього і заднього виду'),
+                                                                      (20, 7, 'Салон із високоякісної шкіри'),
+                                                                      (20, 8, 'Бездротове підключення для мобільних пристроїв'),
+                                                                      (21, 9, 'Система автоматичного контролю тиску в шинах'),
+                                                                      (21, 10, 'Мультимедійна система з сенсорним екраном'),
+                                                                      (22, 11, 'Система автопілота для безпечного водіння'),
+                                                                      (22, 12, 'LED фари для покращеного освітлення'),
+                                                                      (23, 13, 'Електричні склопідйомники всіх дверей'),
+                                                                      (23, 14, 'Система сигналізації з датчиком руху'),
+                                                                      (24, 15, 'Регулювання сидінь з електроприводом'),
+                                                                      (24, 16, 'Навігаційна система з оновленням карти'),
+                                                                      (25, 17, 'Система безключового доступу для зручності'),
+                                                                      (25, 18, 'Панорамний дах для додаткового освітлення в салоні'),
+                                                                      (17, 10, 'Вбудована мультимедійна система для розваг'),
+                                                                      (18, 14, 'Сучасна сигналізація з мобільним оповіщенням'),
+                                                                      (19, 17, 'Інноваційна система безключового доступу'),
+                                                                      (20, 9, 'Контроль тиску в шинах із попередженням на екрані'),
+                                                                      (21, 7, 'Шкіряні сидіння преміум-класу для комфорту');
+
+
+-- Таблиця maintenance_records 11
+INSERT INTO maintenance_records (car_id, service_center_id, description, date, cost) VALUES
+                                                                                         (17, 3, 'Заміна масла', '2024-11-01', 50.00),
+                                                                                         (18, 4, 'Ремонт двигуна', '2024-11-02', 500.00),
+                                                                                         (19, 5, 'Заміна шин', '2024-11-03', 200.00),
+                                                                                         (20, 3, 'Перевірка гальмівної системи', '2024-11-04', 100.00),
+                                                                                         (21, 4, 'Заміна акумулятора', '2024-11-05', 150.00),
+                                                                                         (22, 6, 'Ремонт підвіски', '2024-11-06', 300.00),
+                                                                                         (23, 7, 'Фарбування кузова', '2024-11-07', 700.00),
+                                                                                         (24, 3, 'Діагностика двигуна', '2024-11-08', 80.00),
+                                                                                         (25, 5, 'Чистка системи охолодження', '2024-11-09', 120.00),
+                                                                                         (25, 4, 'Заміна гальмівних колодок', '2024-12-15', 90.00);
+
+
+-- Таблиця insurance_policies 12
+INSERT INTO insurance_policies (car_id, provider, start_date, end_date) VALUES
+                                                                            (17, 'Альфа Страхування', '2024-01-01', '2024-12-01'),
+                                                                            (18, 'Провідна', '2023-06-15', '2023-06-15'),
+                                                                            (19, 'Таскомбанк Страхування', '2024-03-01', '2024-03-01'),
+                                                                            (20, 'PZU Україна', '2023-11-20', '2023-11-20'),
+                                                                            (21, 'ARX', '2024-05-01', '2024-05-01'),
+                                                                            (22, 'АХА Страхування', '2024-02-10', '2024-02-10'),
+                                                                            (23, 'Оранта', '2023-09-01', '2023-09-01'),
+                                                                            (24, 'Альфа Страхування', '2023-12-15', '2023-12-15'),
+                                                                            (25, 'Інго Україна', '2024-04-01', '2024-04-01'),
+                                                                            (17, 'Альфа Страхування', '2024-01-15', '2025-12-15'),
+                                                                            (18, 'Таскомбанк Страхування', '2024-02-20', '2025-02-20'),
+                                                                            (19, 'ARX', '2024-03-10', '2025-03-10'),
+                                                                            (20, 'АХА Страхування', '2024-04-25', '2025-04-25'),
+                                                                            (21, 'Провідна', '2024-05-15', '2025-05-15'),
+                                                                            (22, 'Оранта', '2024-06-10', '2025-06-10'),
+                                                                            (23, 'PZU Україна', '2024-07-01', '2025-07-01'),
+                                                                            (24, 'Інго Україна', '2024-08-15', '2025-08-15'),
+                                                                            (25, 'Альфа Страхування', '2024-09-01', '2025-09-01');
+
+-- Таблиця service_centers 13
+INSERT INTO service_centers (name, location_id) VALUES
+                                                    ('Автосервіс Київ', 1), -- id 3 (1)
+                                                    ('Автосервіс Львів', 2),
+                                                    ('Автосервіс Одеса', 3),
+                                                    ('Автосервіс Харків', 4),
+                                                    ('Автосервіс Дніпро', 5),
+                                                    ('Автосервіс Запоріжжя', 6),
+                                                    ('Автосервіс Вінниця', 7),
+                                                    ('Автосервіс Черкаси', 8),
+                                                    ('Автосервіс Івано-Франківськ', 9),
+                                                    ('Автосервіс Рівне', 10);
+
+-- Таблиця transactions 14
+INSERT INTO transactions (listing_id, buyer_id, date, final_price, payment_method, status) VALUES
+                                                                                 (1, 16, '2024-12-07', 11000.00, 'Банківська картка', 'Виконана'),
+                                                                                 (2, 19, '2024-12-08', 13000.00, 'Банківська картка', 'Виконана'),
+                                                                                 ( 3, 21, '2024-12-09', 8500.00, 'Банківська картка', 'Виконана'),
+                                                                                 ( 4, 16, '2024-12-10', 15500.00, 'Готівка', 'Виконана'),
+                                                                                 ( 5, 17, '2024-12-11', 11500.00, 'Банківська картка', 'Виконана'),
+                                                                                 ( 6, 19, '2024-12-12', 9600.00, 'Банківська картка', 'В процесі'),
+                                                                                 ( 7, 17, '2024-12-13', 10800.00, 'Банківська картка', 'Виконана'),
+                                                                                 ( 8, 19, '2024-12-14', 9100.00, 'Готівка', 'Виконана'),
+                                                                                 ( 9, 16, '2024-12-15', 14500.00, 'Банківська картка', 'Виконана'),
+                                                                                 ( 10, 17, '2024-12-16', 13200.00, 'Банківська картка', 'Невдала');
