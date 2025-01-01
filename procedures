@@ -1,0 +1,394 @@
+-- PROCEDURES
+-- 1
+DELIMITER $$
+
+CREATE PROCEDURE AddUser(
+    IN firstName VARCHAR(50),
+    IN lastName VARCHAR(50),
+    IN middleName VARCHAR(50),
+    IN email VARCHAR(100),
+    IN phoneNumber VARCHAR(15),
+    IN password VARCHAR(255),
+    IN role ENUM('Адміністратор', 'Продавець', 'Покупець', 'Гість')
+)
+BEGIN
+    IF EXISTS (SELECT 1 FROM users WHERE users.email = email) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Електронна пошта вже використовується';
+    END IF;
+
+    IF email NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Некоректний формат електронної пошти. Правильний формат: yourname@example.com';
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM users WHERE users.phone_number = phoneNumber) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Номер телефону вже використовується';
+    END IF;
+
+    IF phoneNumber NOT REGEXP '^0[0-9]{9}$' THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Некоректний формат номера телефону. Правильний формат: 098*******';
+    END IF;
+
+    INSERT INTO users (first_name, last_name, middle_name, email, phone_number, password, role)
+    VALUES (firstName, lastName, middleName, email, phoneNumber, password, role);
+END$$
+
+DELIMITER ;
+
+CALL AddUser('Олександр', 'Усик', 'Олександрович', 'olexandrusyk@gmail.com', '0980098899', 'olexandr3322', 'Покупець');
+CALL AddUser('Даніїл', 'Карпець', 'Сергійович', 'daniakarpets@gmail.com', '0633594899', 'DaniaKarpets123', 'Покупець');
+
+-- 2
+DELIMITER $$
+
+CREATE PROCEDURE AddCar(
+    IN brand VARCHAR(50),
+    IN model VARCHAR(50),
+    IN carYear YEAR,
+    IN color VARCHAR(30),
+    IN mileage DECIMAL(10, 2),
+    IN transmission ENUM('Механічна', 'Автоматична'),
+    IN fuelType ENUM('Бензин', 'Дизель', 'Газ', 'Електро', 'Гібрид'),
+    IN engineSize DECIMAL(3, 1),
+    IN carCondition ENUM('Новий', 'Вживаний'),
+    IN userId INT,
+    IN dealershipId INT
+)
+BEGIN
+    IF mileage < 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Пробіг не може бути від’ємним';
+    END IF;
+
+    IF engineSize < 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Об’єм двигуна не може бути від’ємним';
+    END IF;
+
+    IF userId IS NULL AND dealershipId IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Автомобіль має бути прив’язаний до користувача або автосалону';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM car_listings
+        WHERE car_id IN (SELECT MAX(car_id) FROM cars) AND status = 'Активне'
+    ) OR EXISTS (
+        SELECT 1
+        FROM auctions
+        WHERE car_id IN (SELECT MAX(car_id) FROM cars) AND NOW() BETWEEN start_date AND end_date
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Автомобіль вже прив’язаний до активного оголошення або аукціону';
+    END IF;
+
+    INSERT INTO cars (
+        brand, model, year, color, mileage, transmission, fuel_type, engine_size, car_condition
+    ) VALUES (
+                 brand, model, carYear, color, mileage, transmission, fuelType, engineSize, carCondition
+             );
+END$$
+
+DELIMITER ;
+
+CALL AddCar('Porsche', '911 GT3 RS', '2023', 'Білий', '185000', 'Механічна', 'Бензин', 4.0, 'Вживаний', '1', NULL);
+
+-- 3
+DELIMITER $$
+
+CREATE PROCEDURE AddListing(
+    IN carId INT,
+    IN userId INT,
+    IN dealershipId INT,
+    IN locationId INT,
+    IN datePosted DATETIME,
+    IN status ENUM('Активне', 'В очікуванні', 'Неактивне')
+)
+BEGIN
+    IF carId IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Оголошення має бути прив’язане до автомобіля';
+    END IF;
+
+    IF userId IS NULL AND dealershipId IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Оголошення має бути прив’язане до користувача або автосалону';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM car_listings
+        WHERE car_id = carId AND status = 'Активне'
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Автомобіль вже має активне оголошення';
+    END IF;
+
+    INSERT INTO car_listings (
+        car_id, user_id, dealership_id, location_id, date_posted, status
+    ) VALUES (
+                 carId, userId, dealershipId, locationId, datePosted, status
+             );
+
+END$$
+
+DELIMITER ;
+
+CALL AddListing(2, 4, NULL, NULL, NOW(), 'Активне');
+CALL AddListing(2, 4, NULL, NULL, NOW(), 'Активне');
+CALL AddListing(1, NULL, NULL, NULL, NOW(), 'Активне');
+
+-- 4
+DELIMITER $$
+
+CREATE PROCEDURE AddLocation (
+    IN city VARCHAR(100),
+    IN region VARCHAR(100),
+    IN address VARCHAR(255)
+)
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM locations
+        WHERE locations.address = address
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Адреса має бути унікальною';
+    ELSE
+        INSERT INTO locations (city, region, address)
+        VALUES (city, region, address);
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL AddLocation('Київ', 'Київська область', 'вул. Хрещатик, 22');
+SELECT @location_id AS 'Новий ідентифікатор розташування';
+CALL AddLocation('Київ', 'Київська область', 'вул. Хрещатик, 22');
+
+-- 5
+DELIMITER $$
+
+CREATE PROCEDURE AddTransaction (
+    IN listingID INT,
+    IN buyerID INT,
+    IN date DATETIME,
+    IN finalPrice DECIMAL(10, 2),
+    IN paymentMethod ENUM('Готівка', 'Банківська картка'),
+    IN status ENUM('Виконана', 'В процесі', 'Невдала', 'Скасована')
+)
+BEGIN
+    IF NOW() < date THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Дата транзакції не може бути майбутньою';
+    END IF;
+
+    IF finalPrice < 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Кінцева вартість не може бути від’ємною';
+    END IF;
+
+    INSERT INTO transactions (
+        listing_id, buyer_id, date, final_price, payment_method, status
+    ) VALUES (
+                 listingID, buyerID, date, finalPrice, paymentMethod, status
+             );
+END$$
+
+DELIMITER ;
+
+CALL AddTransaction(1, 2, '2024-12-26 03:30:00', 15000.00, 'Готівка', 'Виконана');
+CALL AddTransaction(1, 2, '2024-12-22 02:40:00', -15000.00, 'Готівка', 'Виконана');
+
+-- 6
+DELIMITER $$
+
+CREATE PROCEDURE AddReview (
+    IN listingID INT,
+    IN userID INT,
+    IN rating INT,
+    IN comment TEXT
+)
+BEGIN
+    IF EXISTS (SELECT 1 FROM reviews WHERE listing_id = listingID AND user_id = userID) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Користувач може залишити лише один відгук на кожне оголошення';
+    END IF;
+
+    IF rating < 1 OR rating > 5 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Рейтинг має бути в межах від 1 до 5';
+    END IF;
+
+    INSERT INTO reviews (listing_id, user_id, rating, comment, date_posted)
+    VALUES (listingID, userID, rating, comment, CURRENT_TIMESTAMP);
+
+END$$
+
+DELIMITER ;
+
+CALL AddReview(1, 4, 4, 'Добре авто, задоволений покупкою');
+CALL AddReview(1, 4, 3, 'Добре авто, задоволений покупкою');
+CALL AddReview(1, 2, 10, 'Авто просто супер!');
+
+-- інші процедури для бізнес-правил
+DELIMITER $$
+
+CREATE PROCEDURE AddDealership (
+    IN dealershipName VARCHAR(100),
+    IN locationID INT,
+    IN contactInfo TEXT,
+    IN website VARCHAR(255)
+)
+BEGIN
+    IF EXISTS (SELECT 1 FROM dealerships WHERE contact_info = contactInfo) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Контактна інформація повинна бути унікальною';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM locations WHERE location_id = locationID) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Вказане місце розташування не існує';
+    END IF;
+
+    INSERT INTO dealerships (name, location_id, contact_info, website)
+    VALUES (dealershipName, locationID, contactInfo, website);
+
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE AddAuction (
+    IN carID INT,
+    IN startDate DATETIME,
+    IN endDate DATETIME,
+    IN startingPrice DECIMAL(10, 2)
+)
+BEGIN
+    IF EXISTS (SELECT 1 FROM auctions WHERE car_id = carID AND end_date > CURRENT_TIMESTAMP) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Для цього автомобіля вже є активний аукціон';
+    END IF;
+
+    IF endDate < startDate THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Дата завершення аукціону не може бути раніше дати початку';
+    END IF;
+
+    IF startingPrice <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Стартова ціна повинна бути більшою за 0';
+    END IF;
+
+    INSERT INTO auctions (car_id, start_date, end_date, starting_price)
+    VALUES (carID, startDate, endDate, startingPrice);
+
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE AddBid (
+    IN auctionID INT,
+    IN userID INT,
+    IN bidAmount DECIMAL(10, 2)
+)
+BEGIN
+    DECLARE lastBid DECIMAL(10, 2);
+    DECLARE minimumBidIncrement DECIMAL(10, 2);
+    DECLARE carOwnerID INT;
+    DECLARE dynamicMessage VARCHAR(255);
+
+    IF NOT EXISTS (SELECT 1 FROM users WHERE user_id = userID) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Користувач не зареєстрований';
+    END IF;
+
+    SELECT bid_amount INTO lastBid FROM auction_bids
+    WHERE auction_id = auctionID
+    ORDER BY bid_date DESC LIMIT 1;
+
+    SELECT starting_price * 0.1 INTO minimumBidIncrement FROM auctions WHERE auction_id = auctionID;
+
+    IF lastBid IS NOT NULL AND bidAmount <= lastBid + minimumBidIncrement THEN
+        SET dynamicMessage = CONCAT('Ставка повинна перевищувати попередню ставку на мінімальний крок: ', minimumBidIncrement);
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = dynamicMessage;
+    END IF;
+
+    INSERT INTO auction_bids (auction_id, user_id, bid_amount, bid_date)
+    VALUES (auctionID, userID, bidAmount, CURRENT_TIMESTAMP);
+
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE AddMaintenanceRecord (
+    IN carID INT,
+    IN serviceCenterID INT,
+    IN description TEXT,
+    IN recordDate DATE,
+    IN cost DECIMAL(10, 2)
+)
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cars WHERE car_id = carID) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Автомобіль з таким ідентифікаційним номером не існує';
+    END IF;
+
+    IF cost < 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Вартість обслуговування не може бути від’ємною';
+    END IF;
+
+    INSERT INTO maintenance_records (car_id, service_center_id, description, date, cost)
+    VALUES (carID, serviceCenterID, description, recordDate, cost);
+
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE AddInsurancePolicy (
+    IN carID INT,
+    IN provider VARCHAR(100),
+    IN startDate DATE,
+    IN endDate DATE
+)
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cars WHERE car_id = carID) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Автомобіль повинен бути активним для реєстрації страхового поліса';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM insurance_policies
+        WHERE car_id = carID
+          AND (
+            (start_date BETWEEN startDate AND endDate) OR
+            (end_date BETWEEN startDate AND endDate) OR
+            (start_date <= startDate AND end_date >= endDate)
+            )
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Періоди дії полісів не можуть перекриватися для одного автомобіля';
+    END IF;
+
+    INSERT INTO insurance_policies (car_id, provider, start_date, end_date)
+    VALUES (carID, provider, startDate, endDate);
+
+END$$
+
+DELIMITER ;
+
