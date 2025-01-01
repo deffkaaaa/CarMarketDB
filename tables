@@ -1,0 +1,152 @@
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    middle_name VARCHAR(50),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone_number VARCHAR(15) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('Адміністратор', 'Продавець', 'Покупець', 'Гість') NOT NULL DEFAULT 'Гість',
+    date_registered DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE cars (
+    car_id INT AUTO_INCREMENT PRIMARY KEY,
+    brand VARCHAR(50) NOT NULL,
+    model VARCHAR(50) NOT NULL,
+    year YEAR NOT NULL,
+    color VARCHAR(30) NOT NULL,
+    mileage DECIMAL(10, 2) NOT NULL,
+    transmission ENUM('Механічна', 'Автоматична') NOT NULL,
+    fuel_type ENUM('Бензин', 'Дизель', 'Газ', 'Електро', 'Гібрид') NOT NULL,
+    engine_size DECIMAL(3, 1),
+    car_condition ENUM('Новий', 'Вживаний') NOT NULL DEFAULT 'Вживаний'
+);
+
+CREATE TABLE car_listings (
+    listing_id INT AUTO_INCREMENT PRIMARY KEY,
+    car_id INT NOT NULL,
+    user_id INT NOT NULL,
+    dealership_id INT,
+    location_id INT,
+    date_posted DATETIME NOT NULL,
+    status ENUM('Активне', 'В очікуванні', 'Неактивне') NOT NULL DEFAULT 'Активне',
+    car_price DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_car_listings_car_id FOREIGN KEY (car_id) REFERENCES cars(car_id),
+    CONSTRAINT fk_car_listings_user_id FOREIGN KEY (user_id) REFERENCES users(user_id),
+    CONSTRAINT fk_car_listings_dealership_id FOREIGN KEY (dealership_id) REFERENCES dealerships(dealership_id),
+    CONSTRAINT fk_car_listings_location_id FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
+
+CREATE TABLE locations (
+    location_id INT AUTO_INCREMENT PRIMARY KEY,
+    city VARCHAR(100) NOT NULL,
+    region VARCHAR(100),
+    address VARCHAR(255)
+);
+
+CREATE TABLE transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    date DATETIME NOT NULL,
+    final_price DECIMAL(10, 2) NOT NULL,
+    payment_method ENUM('Готівка', 'Банківська картка') NOT NULL,
+    status ENUM('Виконана', 'В процесі', 'Невдала', 'Скасована') NOT NULL DEFAULT 'В процесі',
+    CONSTRAINT fk_transactions_listing_id FOREIGN KEY (listing_id) REFERENCES car_listings(listing_id),
+    CONSTRAINT fk_transactions_buyer_id FOREIGN KEY (buyer_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE dealerships (
+    dealership_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location_id INT NOT NULL,
+    contact_info TEXT NOT NULL,
+    website VARCHAR(255),
+    CONSTRAINT fk_dealerships_location_id FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
+
+CREATE TABLE reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    date_posted DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_reviews_listing_id FOREIGN KEY (listing_id) REFERENCES car_listings(listing_id),
+    CONSTRAINT fk_reviews_user_id FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE auctions (
+    auction_id INT AUTO_INCREMENT PRIMARY KEY,
+    car_id INT NOT NULL,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    starting_price DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_auctions_car_id FOREIGN KEY (car_id) REFERENCES cars(car_id)
+);
+
+CREATE TABLE auction_bids (
+    bid_id INT AUTO_INCREMENT PRIMARY KEY,
+    auction_id INT NOT NULL,
+    user_id INT NOT NULL,
+    bid_amount DECIMAL(10, 2) NOT NULL,
+    bid_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_auction_bids_auction_id FOREIGN KEY (auction_id) REFERENCES auctions(auction_id),
+    CONSTRAINT fk_auction_bids_user_id FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE system_events (
+    event_id INT AUTO_INCREMENT PRIMARY KEY,
+    event_type ENUM('Дія користувача', 'Системне оновлення', 'Помилка', 'Сповіщення') NOT NULL,
+    user_id INT,
+    table_name VARCHAR(255),
+    action ENUM('Створення', 'Оновлення', 'Видалення') NOT NULL,
+    old_value TEXT,
+    new_value TEXT,
+    message TEXT,
+    date_created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('В процесі', 'Виконано', 'Невдало') DEFAULT 'В процесі',
+    CONSTRAINT fk_system_events_user_id FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE car_features (
+    feature_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE car_feature_details (
+    car_id INT NOT NULL,
+    feature_id INT NOT NULL,
+    description TEXT,
+    PRIMARY KEY (car_id, feature_id),
+    CONSTRAINT fk_car_feature_details_car_id FOREIGN KEY (car_id) REFERENCES cars(car_id),
+    CONSTRAINT fk_car_feature_details_feature_id FOREIGN KEY (feature_id) REFERENCES car_features(feature_id)
+);
+
+CREATE TABLE maintenance_records (
+    record_id INT AUTO_INCREMENT PRIMARY KEY,
+    car_id INT NOT NULL,
+    service_center_id INT NOT NULL,
+    description TEXT NOT NULL,
+    date DATE NOT NULL,
+    cost DECIMAL(10, 2) NOT NULL,
+    CONSTRAINT fk_maintenance_records_car_id FOREIGN KEY (car_id) REFERENCES cars(car_id),
+    CONSTRAINT fk_maintenance_records_service_center_id FOREIGN KEY (service_center_id) REFERENCES service_centers(service_center_id)
+);
+
+CREATE TABLE insurance_policies (
+    policy_id INT AUTO_INCREMENT PRIMARY KEY,
+    car_id INT NOT NULL,
+    provider VARCHAR(100) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    CONSTRAINT fk_insurance_policies_car_id FOREIGN KEY (car_id) REFERENCES cars(car_id)
+);
+
+CREATE TABLE service_centers (
+    service_center_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location_id INT NOT NULL,
+    CONSTRAINT fk_service_centers_location_id FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
