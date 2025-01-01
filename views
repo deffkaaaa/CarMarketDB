@@ -1,0 +1,63 @@
+-- VIEWS
+-- 1
+CREATE VIEW active_car_listings AS
+SELECT
+    cl.listing_id,
+    c.brand,
+    c.model,
+    c.year,
+    c.color,
+    cl.date_posted,
+    d.name AS dealership_name,
+    l.city AS dealership_city,
+    l.region AS dealership_region
+FROM car_listings cl
+         JOIN cars c ON cl.car_id = c.car_id
+         JOIN dealerships d ON cl.dealership_id = d.dealership_id
+         JOIN locations l ON d.location_id = l.location_id
+WHERE cl.status = 'Активне';
+
+-- 2
+CREATE VIEW listings_by_price AS
+SELECT
+    cl.listing_id,
+    c.brand,
+    c.model,
+    c.year,
+    c.color,
+    cl.date_posted,
+    cl.status,
+    cl.car_price
+FROM car_listings cl
+         JOIN cars c ON cl.car_id = c.car_id
+WHERE cl.car_price BETWEEN ? AND ?;
+
+-- 3
+CREATE VIEW pending_car_listings AS
+SELECT
+    cl.listing_id,
+    c.brand,
+    c.model,
+    c.year,
+    cl.date_posted,
+    u.first_name,
+    u.last_name,
+    cl.status
+FROM car_listings cl
+         JOIN cars c ON cl.car_id = c.car_id
+         JOIN users u ON cl.user_id = u.user_id
+WHERE cl.status = 'В очікуванні';
+
+-- 4
+CREATE VIEW service_center_maintenance AS
+SELECT
+    m.record_id,
+    c.brand,
+    c.model,
+    s.name AS service_center_name,
+    m.description,
+    m.date,
+    m.cost
+FROM maintenance_records m
+         JOIN cars c ON m.car_id = c.car_id
+         JOIN service_centers s ON m.service_center_id = s.service_center_id;
